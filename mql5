@@ -1,0 +1,89 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                        ProfitZone PRO MT5        |
+//|                      https://www.forexroboteasy.com                |
+//|                                 Developed by Forex Robot Easy Team |
+//+------------------------------------------------------------------+
+
+// Define indicator input parameters
+input string SymbolName = 'EURUSD'; // Trading instrument symbol
+input ENUM_TIMEFRAMES TimeFrame = PERIOD_M15; // Chart timeframe
+
+// Define indicator buffers
+double profitZonesBuffer[];
+double entryPointsBuffer[];
+double exitPointsBuffer[];
+
+// Define module variables
+int indicatorHandle;
+
+//+------------------------------------------------------------------+
+//| Custom indicator initialization function                         |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+    // Initialize indicator buffers
+    SetIndexStyle(0, DRAW_NONE);
+    SetIndexBuffer(0, profitZonesBuffer);
+    SetIndexBuffer(1, entryPointsBuffer);
+    SetIndexBuffer(2, exitPointsBuffer);
+    
+    // Register the custom indicator
+    indicatorHandle = iCustom(SymbolName, TimeFrame, 'ProfitZone_PRO');
+    
+    return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Custom indicator deinitialization function                       |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+    // Unregister the custom indicator
+    IndicatorRelease(indicatorHandle);
+}
+
+//+------------------------------------------------------------------+
+//| Custom indicator calculation function                            |
+//+------------------------------------------------------------------+
+int OnCalculate(const int ratesTotal,
+                const int prev_calculated,
+                const datetime &time[],
+                const double &open[],
+                const double &high[],
+                const double &low[],
+                const double &close[],
+                const long &tick_volume[],
+                const long &volume[],
+                const int &spread[])
+{
+    // Calculate the Profit Zones
+    int calculatedBars = iCustom(SymbolName, TimeFrame, 'ProfitZone_PRO', profitZonesBuffer, entryPointsBuffer, exitPointsBuffer);
+    
+    // Perform trading operations based on the Profit Zones
+    for (int i = prev_calculated; i < calculatedBars; i++)
+    {
+        // Enter a long trade if the close price is above the Profit Zone
+        if (close[i] > profitZonesBuffer[i])
+        {
+            // Perform the long trade entry
+            // ...
+        }
+        
+        // Enter a short trade if the close price is below the Profit Zone
+        if (close[i] < profitZonesBuffer[i])
+        {
+            // Perform the short trade entry
+            // ...
+        }
+        
+        // Exit the trade if the close price crosses the Profit Zone
+        if (close[i] == profitZonesBuffer[i])
+        {
+            // Perform the trade exit
+            // ...
+        }
+    }
+    
+    return(calculatedBars);
+}
